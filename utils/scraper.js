@@ -2,10 +2,11 @@ const puppeteer = require("puppeteer");
 const { callGeminiAPI } = require("./geminiService");
 const { timeout } = require("puppeteer");
 const customError = require("./customError");
+const { join } = require('path');
 
 
 const scraper = async (url) => {
-    const browser = await puppeteer.launch({executablePath: '/opt/render/.cache/puppeteer', headless: 'new' });
+    const browser = await puppeteer.launch({executablePath: join(__dirname, '.cache', '.puppeteerrc.cjs'), headless: 'new' });
     try {
 
         const page = await browser.newPage();
