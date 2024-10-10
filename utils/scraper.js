@@ -47,6 +47,7 @@ const scraper = async (url) => {
             var geminiResponse = await callGeminiAPI(chunks[i]);
         }
         console.log(geminiResponse)
+        
         // now iterate over container and populate the return obj
         const reviews = await fetchAndPopulateDataForEachPage(page, geminiResponse)
 
@@ -77,10 +78,9 @@ const fetchAndPopulateDataForEachPage = async (page, response) => {
 
         //if there's a button that only after clicking that we will get paginated view of our reviews then click it first
         if (seeAllReviewsSelector) {
-            await
-                (page.evaluate((seeAllReviewsSelector) => {
+            await page.evaluate((seeAllReviewsSelector) => {
                     document.querySelector(seeAllReviewsSelector)?.click();
-                }, seeAllReviewsSelector))
+                }, seeAllReviewsSelector)
         }
 
         //global list
@@ -91,16 +91,7 @@ const fetchAndPopulateDataForEachPage = async (page, response) => {
 
         while (!isDisabled) {
 
-            // wait for the review conatiner if it has changed we can just send the reviews till now we've fetched
-            // (doing this for reducing LLM api calls and also for achieving functionality first, maybe we can do this too.)
-
-            const containerExists = await page.evaluate((containerSelector) => {
-                return document.querySelector(containerSelector)
-            }, containerSelector)
-
-            if (!containerExists) {
-                return list;
-            }
+            // await page.waitForNavigation({ waitUntil: ['domcontentloaded'] })
 
             // get the container and fetch every review in a paginated fashion
 
@@ -135,11 +126,13 @@ const fetchAndPopulateDataForEachPage = async (page, response) => {
 
             if (hasNext) {
                 isDisabled = false;
-                await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 });
+                // await page.waitForNavigation({ waitUntil: ['domcontentloaded'] })
 
             } else {
                 isDisabled = true;
             }
+
+            if(list.length >= 20) break;
 
         }
 
