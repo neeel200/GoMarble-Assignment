@@ -5,7 +5,7 @@ const customError = require("./customError");
 
 
 const scraper = async (url) => {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({executablePath: '/opt/render/.cache/puppeteer', headless: 'new' });
     try {
 
         const page = await browser.newPage();
