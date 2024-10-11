@@ -4,9 +4,8 @@ const { timeout } = require("puppeteer");
 const customError = require("./customError");
 const { join } = require('path');
 
-
 const scraper = async (url) => {
-    const browser = await puppeteer.launch({executablePath: join(__dirname, '.cache', '.puppeteerrc.cjs'), headless: 'new' });
+    const browser = await puppeteer.launch({ headless: true });
     try {
 
         const page = await browser.newPage();
