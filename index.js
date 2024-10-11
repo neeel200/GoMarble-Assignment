@@ -16,6 +16,7 @@ app.get("/", (req, res) => {
 // handling all the non-existent apis  
 app.all("*", (req, res, next) => {
     next(new customError(`cant find the ${req.originalUrl}`, 404));
+    
   });
 
 // Handling and reverting errors ,if any, to the client 

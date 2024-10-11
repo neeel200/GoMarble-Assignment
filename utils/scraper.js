@@ -1,21 +1,24 @@
 const puppeteer = require("puppeteer");
 const { callGeminiAPI } = require("./geminiService");
-const { timeout } = require("puppeteer");
 const customError = require("./customError");
-const { join } = require('path');
 
-const scraper = async (url, limit) => {
-    const browser = await puppeteer.launch({ headless: true });
+
+const scraper = async (url, limit, res) => {
+    
+   
+    let browser = await puppeteer.launch({ headless: true });
+    
     try {
 
         const page = await browser.newPage();
         try {
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
-
+            
         } catch (err) {
             console.log("page.goto navigation timeout !");
         }
-
+        
+     
 
         // Fetching and Cleaning the HTML
         const cleanedHTML = await page.evaluate(() => {
@@ -48,6 +51,7 @@ const scraper = async (url, limit) => {
         const chunkSize = 700000;
         let chunks = [];
 
+
         for (let i = 0; i < cleanedHTML.length; i += chunkSize) {
             chunks.push(cleanedHTML.slice(i, i + chunkSize));
 
@@ -63,7 +67,7 @@ const scraper = async (url, limit) => {
         console.log(geminiResponse)
 
         // now iterate over container and populate the return obj
-        const reviews = await fetchAndPopulateDataForEachPage(page, geminiResponse, limit)
+        const reviews = await fetchAndPopulateDataForEachPage(page, geminiResponse, limit, res)
 
         return reviews;
     }
@@ -78,7 +82,7 @@ const scraper = async (url, limit) => {
 };
 
 
-const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
+const fetchAndPopulateDataForEachPage = async (page, response, limit, res) => {
     try {
         if (!response) throw new customError("Gemini Limit reached please try after some time!", 500)
 
@@ -105,6 +109,7 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
         let isDisabled = false;
 
         while (!isDisabled) {
+            res.write(`\npage: ${currPageNumber}\n`)
 
             // get the container and fetch every review in a paginated fashion
             try {
@@ -115,7 +120,7 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
                 console.log("review list didnt found!")
                 return list;
             }
-
+        
 
             for (const review of reviewList) {
 
@@ -125,6 +130,7 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
                 const name = await page.evaluate((review, nameSelector) => { if (!nameSelector) return; return review.querySelector(nameSelector)?.innerText }, review, nameSelector)
 
                 list.push({ title: title, body: body, rating: rating, name: name })
+                res.write(`${JSON.stringify({ title: title, body: body, rating: rating, name: name },null, 2)}\n`)
             }
 
             const hasNext = await page.evaluate((selector) => {
@@ -158,7 +164,8 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
             }
 
             if (limit && limit >= -1 && list.length >= limit) break;
-            console.log("page: ", currPageNumber++, "\n")
+            currPageNumber++;
+            console.log("page: ", currPageNumber, "\n")
 
         }
 
@@ -166,7 +173,7 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
     }
     catch (error) {
         console.log('ERROR: ', error);
-        return list;
+        throw error
     }
 }
 
