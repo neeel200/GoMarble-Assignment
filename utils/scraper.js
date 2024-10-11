@@ -10,7 +10,7 @@ const scraper = async (url, limit) => {
 
         const page = await browser.newPage();
         try {
-            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3000 });
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
 
         } catch (err) {
             console.log("page.goto navigation timeout !");
