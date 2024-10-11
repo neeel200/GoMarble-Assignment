@@ -4,26 +4,35 @@ const { timeout } = require("puppeteer");
 const customError = require("./customError");
 const { join } = require('path');
 
-const scraper = async (url) => {
+const scraper = async (url, limit) => {
     const browser = await puppeteer.launch({ headless: true });
     try {
 
         const page = await browser.newPage();
 
-        await page.goto(url, { waitUntil: ['domcontentloaded', 'networkidle2'] });
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 40000 });
 
         // Fetching and Cleaning the HTML
         const cleanedHTML = await page.evaluate(() => {
 
             const unwantedTags = [
-                'script', 'meta', 'footer', 'iframe', 'style', 'link',
-                'src', 'img', 'title', 'option', 'input', 'label',
-                'header', 'noscript', 'nav', 'video', 'svg', 'form',
-                'button', 'aside', 'footer', 'article', 'strong', 'product-modal', 'modal-opener', 'product-form', 'picture'
+                'script', 'meta', 'footer', 'iframe', 'style', 'link', 'src', 'img', 'title',
+                'option', 'input', 'label', 'header', 'noscript', 'nav', 'video', 'svg',
+                'form', 'button', 'aside', 'footer', 'article', 'strong', 'product-modal',
+                'modal-opener', 'product-form', 'picture'
             ];
+
             unwantedTags.forEach(tag => {
-                document?.querySelectorAll(tag)?.forEach(el => el.remove());
-            });
+                const elements = Array.from(document.querySelectorAll(tag));
+
+                elements.forEach(el => {
+                    try {
+                        el.remove(); // Attempt to remove the element
+                    } catch (error) {
+                        console.warn(`Could not remove element for tag ${tag}: `, error); // Catch errors
+                    }
+                });
+            })
 
             const bodyHTML = document.body.innerHTML.replace(/\s+/g, ' ');
             const cleanedHTML = bodyHTML.replace(/<!--.*?-->/g, '').replace(/\\u[\dA-Fa-f]{4}/g, '');
@@ -47,9 +56,9 @@ const scraper = async (url) => {
             var geminiResponse = await callGeminiAPI(chunks[i]);
         }
         console.log(geminiResponse)
-        
+
         // now iterate over container and populate the return obj
-        const reviews = await fetchAndPopulateDataForEachPage(page, geminiResponse)
+        const reviews = await fetchAndPopulateDataForEachPage(page, geminiResponse, limit)
 
         return reviews;
     }
@@ -64,9 +73,9 @@ const scraper = async (url) => {
 };
 
 
-const fetchAndPopulateDataForEachPage = async (page, response) => {
+const fetchAndPopulateDataForEachPage = async (page, response, limit) => {
     try {
-        if(!response) throw new customError("Gemini Limit reached please try after some time!", 500)
+        if (!response) throw new customError("Gemini Limit reached please try after some time!", 500)
 
         const containerSelector = response.reviewContainer;
         const titleSelector = response.reviewTitle;
@@ -79,23 +88,29 @@ const fetchAndPopulateDataForEachPage = async (page, response) => {
         //if there's a button that only after clicking that we will get paginated view of our reviews then click it first
         if (seeAllReviewsSelector) {
             await page.evaluate((seeAllReviewsSelector) => {
-                    document.querySelector(seeAllReviewsSelector)?.click();
-                }, seeAllReviewsSelector)
+                document.querySelector(seeAllReviewsSelector)?.click();
+            }, seeAllReviewsSelector)
         }
 
         //global list
-        const list = [];
+        var list = [];
+        let currPageNumber = 1;
 
         //iterable breaker , LOOP till pagination gets disabled
         let isDisabled = false;
 
         while (!isDisabled) {
 
-            // await page.waitForNavigation({ waitUntil: ['domcontentloaded'] })
-
             // get the container and fetch every review in a paginated fashion
+            try {
+                var reviewList = await page.$$(containerSelector);
 
-            const reviewList = await page.$$(containerSelector);
+            }
+            catch (err) {
+                console.log("review list didnt found!")
+                return list;
+            }
+
 
             for (const review of reviewList) {
 
@@ -126,20 +141,27 @@ const fetchAndPopulateDataForEachPage = async (page, response) => {
 
             if (hasNext) {
                 isDisabled = false;
-                // await page.waitForNavigation({ waitUntil: ['domcontentloaded'] })
+
+                try {
+                    await page.waitForNavigation({ waitUntil: ['domcontentloaded', 'networkidle2'], timeout: 1500 })
+                } catch (err) {
+                    console.log("naviagtion timedout!")
+                }
 
             } else {
                 isDisabled = true;
             }
 
-            if(list.length >= 20) break;
+            if (limit && limit >= -1 && list.length >= limit) break;
+            console.log("page: ", currPageNumber++, "\n")
 
         }
 
         return list;
     }
     catch (error) {
-        throw error;
+        console.log('ERROR: ', error);
+        return list;
     }
 }
 
