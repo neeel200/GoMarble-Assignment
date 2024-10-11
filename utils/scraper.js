@@ -6,7 +6,7 @@ const customError = require("./customError");
 const scraper = async (url, limit, res) => {
     
    
-    let browser = await puppeteer.launch({ headless: true });
+    let browser = await puppeteer.launch({ headless: true, timeout:0 });
     
     try {
 
