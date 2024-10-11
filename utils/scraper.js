@@ -9,8 +9,13 @@ const scraper = async (url, limit) => {
     try {
 
         const page = await browser.newPage();
+        try {
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3000 });
 
-        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 40000 });
+        } catch (err) {
+            console.log("page.goto navigation timeout !");
+        }
+
 
         // Fetching and Cleaning the HTML
         const cleanedHTML = await page.evaluate(() => {
