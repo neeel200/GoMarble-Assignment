@@ -4,21 +4,35 @@ const customError = require("./customError");
 
 
 const scraper = async (url, limit, res) => {
-    
-   
-    let browser = await puppeteer.launch({ headless: true, timeout:0 });
-    
+
+    var browser;
+    try {
+
+        browser = await puppeteer.launch({ headless: true, timeout: 0 });
+    }
+    catch (err) {
+        try {
+
+            browser = await puppeteer.launch({ headless: true })
+        }
+        catch (err) {
+            console.log(err);
+            res.write(`ERROR: ${err}`)
+            res.end()
+        }
+    }
+
     try {
 
         const page = await browser.newPage();
         try {
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
-            
+
         } catch (err) {
             console.log("page.goto navigation timeout !");
         }
-        
-     
+
+
 
         // Fetching and Cleaning the HTML
         const cleanedHTML = await page.evaluate(() => {
@@ -118,9 +132,11 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit, res) => {
             }
             catch (err) {
                 console.log("review list didnt found!")
+                res.write(`ERROR: review list didnt found!`)
+                res.end()
                 return list;
             }
-        
+
 
             for (const review of reviewList) {
 
@@ -130,7 +146,7 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit, res) => {
                 const name = await page.evaluate((review, nameSelector) => { if (!nameSelector) return; return review.querySelector(nameSelector)?.innerText }, review, nameSelector)
 
                 list.push({ title: title, body: body, rating: rating, name: name })
-                res.write(`${JSON.stringify({ title: title, body: body, rating: rating, name: name },null, 2)}\n`)
+                res.write(`${JSON.stringify({ title: title, body: body, rating: rating, name: name }, null, 2)}\n`)
             }
 
             const hasNext = await page.evaluate((selector) => {
