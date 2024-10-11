@@ -19,12 +19,18 @@ const scrapeController = tryCatch(async (req, res, next) => {
          'Cache-Control': 'no-cache'
     });
     
-      res.write("Scrapping will be starting soon...\n")
+      res.write("data: Scrapping will be starting soon...\n\n")
 
       const reviews = await scraper(page, parseInt(limit), res)
-      res.write(`\nTotal Reviews Fetched : ${reviews?.length}`)
+      res.write(`data: Total Reviews Fetched : ${reviews?.length}\n\n`)
 
-    res.end();
+      req.on('close', () => {
+        console.log('Client disconnected, stopping stream.');
+        res.end();
+        
+      });
+
+    res?.end();
     
     //JSON response
     // return res.status(200).json({ reviews_count: reviews?.length, reviews })

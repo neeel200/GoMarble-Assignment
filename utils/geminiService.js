@@ -8,7 +8,7 @@ const callGeminiAPI = async (htmlChunk) => {
 
 
     const generationConfig = {
-        temperature: 0.2,
+        temperature: 0.21,
         topP: 0.9,
         topK: 64,
     };
