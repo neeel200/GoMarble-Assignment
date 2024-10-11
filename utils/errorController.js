@@ -7,7 +7,8 @@ const errController = async (error, req, res, next) => {
     status: error.status,
     stack: error.stack,
   });
-
+//  res.write(`ERROR occured : ${error}`)
+//  res.end()
 };
 
 module.exports = errController;

@@ -8,8 +8,8 @@ const callGeminiAPI = async (htmlChunk) => {
 
 
     const generationConfig = {
-        temperature: 0.4,
-        topP: 0.95,
+        temperature: 0.2,
+        topP: 0.9,
         topK: 64,
     };
     const model = genAI.getGenerativeModel({
