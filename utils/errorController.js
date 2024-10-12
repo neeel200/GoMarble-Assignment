@@ -2,7 +2,7 @@ const errController = async (error, req, res, next) => {
 
   // console.log("ERROR: ", error)
   
-  if(!res._header['Content-Type'] ) {
+  if(!res.writable) {
     return res.status(error.statusCode || 500).json({
       message: error.message,
       status: error.status,
