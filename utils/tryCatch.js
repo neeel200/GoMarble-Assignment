@@ -9,8 +9,7 @@ const tryCatch = (controller) => async (req, res, next) => {
   } catch (error) {
     console.error(`Error occurred in ${req.originalUrl}: ${error}`);
     if (res.writable) {
-      res
-      res.write(`ERROR: ${error}\n`);
+      res.write(`ERROR: ${JSON.stringify(error.message)}\n`);
       res.end();
   } else {
       console.log('Response is no longer writable.');

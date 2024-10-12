@@ -5,9 +5,11 @@ const customError = require("../utils/customError");
 const scrapeController = tryCatch(async (req, res, next) => {
   let { page, fetchOnly } = req.query;
 
+  if(!page) throw new customError("Please pass a valid page parameter!")
+
   let limit = fetchOnly;
 
-  if (limit && !parseInt(limit)) return next(new customError("Please pass a valid fetchOnly parameter!"));
+  if (limit && !parseInt(limit)) throw (new customError("Please pass a valid fetchOnly parameter!"));
   if (!limit) limit = -1;
 
   // stream SSE response
