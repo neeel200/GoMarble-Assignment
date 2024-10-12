@@ -133,7 +133,6 @@ const fetchAndPopulateDataForEachPage = async (page, response, limit, res) => {
             catch (err) {
                 console.log("review list didnt found!")
                 res.write(`ERROR: review list didnt found!`)
-                res.end()
                 return list;
             }
 
