@@ -1,8 +1,6 @@
 # AI-Powered Product Review Scraper
-This project dynamically scrapes product reviews from any e-commerce site and streams the data back to the client in real-time using Server-Sent Events (SSE). The scraper is powered by Node.js, Puppeteer, and the Gemini-1.5-flash model for intelligent review extraction.
+This project dynamically scrapes product reviews from any e-commerce site and streams the data back to the client in real-time using Server-Sent-Events (SSE). The scraper is powered by Node.js, Puppeteer, and the Gemini-1.5-flash model for intelligent review extraction.
 
-Api doc with sample outputs and workflow details:- 
-https://docs.google.com/document/d/1rtlevXlGMzscG8surXUvfidWkXGrxOqGcB9tAcriMrY/edit?usp=sharing
 
 Features: 
 - Dynamic Review Scraping: Extracts reviews from any product page, adapting to various site structures.
@@ -16,4 +14,21 @@ Tech Stack:
 Install and RUN:<br>
 `npm install && npx puppeteer browsers install chrome && npm run dev`
 
+
+**API Details:**<br>
+Endpoint (GET) http://localhost:8080/api/reviews?page={}&fetchOnly=10
+
+- Description:- This api is used to get all reviews for the given product’s page. This api scrapes all reviews from the given page with the help of LLM (gemini) and returns the list of reviews back in the response.
+
+- Query_Params:-
+
+ `page` (Required) : This is the product’s page url.
+
+  `fetchOnly` (Optional) :This parameter states the number of reviews we want from the given product `page` url i.e if provided will fetch the first “n” reviews from the page.IF NOT provided then fetches all reviews.
+
+
+WorkFlow diagram:-
+https://app.eraser.io/workspace/yNRP8IRFrbY2IP5nKQoB?origin=share
+
+Demo Output :- (Media output drive link):-[   public](https://drive.google.com/file/d/1OdlrUyjl0WiGewzCaXNfZ6XlnKC1YiNr/view?usp=sharing)
 
