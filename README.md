@@ -30,5 +30,5 @@ Endpoint (GET) http://localhost:8080/api/reviews?page={}&fetchOnly=10
 WorkFlow diagram:-
 https://app.eraser.io/workspace/yNRP8IRFrbY2IP5nKQoB?origin=share
 
-Demo Output :- (Media output drive link):-[   public](https://drive.google.com/file/d/1OdlrUyjl0WiGewzCaXNfZ6XlnKC1YiNr/view?usp=sharing)
+Demo Ouput link :- https://drive.google.com/file/d/1OdlrUyjl0WiGewzCaXNfZ6XlnKC1YiNr/view?usp=sharing
 
