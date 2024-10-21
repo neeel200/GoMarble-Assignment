@@ -1,7 +1,7 @@
 # AI-Powered Product Review Scraper
 This project dynamically scrapes product reviews from any e-commerce site and streams the data back to the client in real-time using Server-Sent Events (SSE). The scraper is powered by Node.js, Puppeteer, and the Gemini-1.5-flash model for intelligent review extraction.
 
-Api doc with output and workflow details:- 
+Api doc with sample outputs and workflow details:- 
 https://docs.google.com/document/d/1rtlevXlGMzscG8surXUvfidWkXGrxOqGcB9tAcriMrY/edit?usp=sharing
 
 Features: 
