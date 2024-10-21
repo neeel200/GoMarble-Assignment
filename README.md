@@ -8,7 +8,7 @@ Features:
 - AI Integration: Leverages the Gemini 1.5-flash model for dynamic CSS identification and review extraction.
   
 Tech Stack:
-- Backend: Node.js, Puppeteer
+- Backend: Node.js(with SSE), Puppeteer
 - AI Model: Gemini-1.5-flash
   
 Install and RUN:<br>
