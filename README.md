@@ -16,7 +16,7 @@ Install and RUN:<br>
 
 
 **API Details:**<br>
-Endpoint (GET) http://localhost:8080/api/reviews?page={}&fetchOnly=10
+Endpoint (GET) http://localhost:8080/api/reviews?page={url}&fetchOnly=10
 
 - Description:- This api is used to get all reviews for the given product’s page. This api scrapes all reviews from the given page with the help of LLM (gemini) and returns the list of reviews back in the response.
 
